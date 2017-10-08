@@ -1,0 +1,5 @@
+; $Id$
+name = MDC Online
+description = MDC Online
+package = PEP
+version = 2.0

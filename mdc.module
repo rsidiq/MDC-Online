@@ -1,0 +1,954 @@
+<?php
+function mdc_menu($may_cache) {
+    $nama 	= $GLOBALS['user']->name;
+	if(arg(0) == 'mdc'){
+	    $GLOBALS['fusion_app'] = TRUE;
+		$GLOBALS['appTitle'] = 'Direct Charge Material Management';
+	    drupal_add_css(drupal_get_path('module', 'mdc').'/css/tambahan.css');
+	    drupal_add_js("$(document).ready(function() { $('div#app-title h2').text('" .$GLOBALS['appTitle']."'); })", "inline");
+	    drupal_add_js("if((navigator.userAgent.indexOf('MSIE') != -1 ) || (!!document.documentMode == true )){ alert('Rekomendasi Browser Mozilla Firefox dan Google Chrome'); }", "inline");
+	}
+	
+    $nopek 	= get_nopek_org($nama);
+	if(!$may_cache) {
+		$items = array();
+		$items[] = array(
+				'path' => 'mdc',
+				'title' => 'Home',				
+			    'callback' => 'drupal_goto',
+			    'callback arguments' => array('mdc/online'),
+    		 	'weight'=>0,
+				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+				'type' => MENU_LOCAL_TASK
+		);
+		$items[] = array(
+				'path' => 'mdc/online',
+				'title' => 'Home',
+				'callback' => 'mdc_home',
+				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+				'type' => MENU_CALLBACK
+		);
+		$items[] = array(
+				'path' => 'mdc/online/home',
+				'title' => 'Home',				
+			    'callback' => 'drupal_goto',
+			    'callback arguments' => array('mdc/online'),
+    		 	'weight'=>0,
+				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+				'type' => MENU_LOCAL_TASK
+		);
+		// RESERVATION =============================================================================
+//     	$items[] = array(
+// 				'path' => 'mdc/online/reservation',
+// 				'title' => 'Reservation',
+// 				'callback' => 'drupal_get_form',
+// 				'callback arguments' => array('mdc_reservation'), // 'mdc scm approval','mdc viewer','mdc super admin'
+//     			'weight'=>1,
+// 				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc scm approval') || user_access('mdc viewer'),
+// 				'type' => MENU_LOCAL_TASK
+// 		);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/view',
+    			'title' => 'Reservation View',
+    			'callback' => 'mdc_reservation_view',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/new',
+    			'title' => 'New Consumption',
+    			'callback' => 'mdc_reservation_new',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/view/data',
+    			'title' => 'Reservation View Data Detil',
+    			'callback' => 'mdc_res_view_data',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/batal',
+    			'title' => 'Cancel Reservation',
+    			'callback' => 'mdc_batalpesan',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/info',
+    			'title' => 'Info Reservation',
+    			'callback' => 'mdc_info_ambil_barang',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/reservation/detil',
+				'title' => 'New Consumption',
+				'callback'=>'mdc_reservation_detil_flush',
+				//'callback' => 'drupal_get_form',
+				//'callback arguments' => array('mdc_reservation_detil'),
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+				'path' => 'mdc/online/reservation/approved',
+				'title' => 'Approved Reservation',
+				'callback' => 'drupal_get_form',
+				'callback arguments' => array('mdc_reservation_approved'),
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+				'path' => 'mdc/online/reservation/reject',
+				'title' => 'Reject Reservation',
+				'callback' => 'mdc_reservation_reject',
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/sabmit',
+    			'title' => 'Submit Reservation',
+    			'callback' => 'mdc_reservation_sabmit',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/reservation/editJml',
+				'title' => 'Edit Jumlah Item - Reservation',
+				'callback' => 'drupal_get_form',
+				'callback arguments' => array('mdc_reservation_editJml'),
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    			'path' => 'mdc/online/reservation/history',
+    			'title' => 'Submit Reservation',
+    			'callback' => 'mdc_reservation_history',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+		// END RESERVATION =============================================================================
+		
+		// Transfer ====================================================================================
+    	$items[] = array(
+    			'path' => 'mdc/online/transfer',
+    			'title' => 'Transfer Item',
+    			'callback' => 'mdc_transfer',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/transfer/batal',
+    			'title' => 'Cancel Transfer',
+    			'callback' => 'mdc_bataltransfer',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/transfer/detil',
+				'title' => 'New Transfer',
+				'callback'=>'mdc_transfer_detil_flush',
+				//'callback' => 'drupal_get_form',
+				//'callback arguments' => array('mdc_transfer_detil'),
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    			'path' => 'mdc/online/transfer/sabmit',
+    			'title' => 'Submit Transfer',
+    			'callback' => 'mdc_transfer_sabmit',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+//     	$items[] = array(
+//     			'path' => 'mdc/online/transfer',
+//     			'title' => 'Transfer Item',
+//     			'callback' => 'drupal_get_form',
+//     			'callback arguments' => array('mdc_transfer_view'),
+//     			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc scm approval') || user_access('mdc viewer'),
+//     			'type' => MENU_CALLBACK
+//     	);
+		// END Transfer ================================================================================
+		
+		$items[] = array(
+				'path' => 'mdc/online/receive',
+				'title' => 'Goods Receive',
+				'callback' => 'mdc_receive_menu',
+    			'weight'=>2,
+				'access' => user_access('mdc super admin') || user_access('mdc good receive'),
+				'type' => MENU_LOCAL_TASK
+		);
+    	$items[] = array(
+				'path' => 'mdc/online/issue',
+				'title' => 'Goods Issue',
+				'callback' => 'mdc_issue_menu',
+    			'weight'=>3,
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+				'type' => MENU_LOCAL_TASK
+		);
+    	$items[] = array(
+    			'path' => 'mdc/online/issue/view',
+    			'title' => 'Goods Issue View',
+    			'callback' => 'mdc_issue_view',
+
+				'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/issue/view/data',
+    			'title' => 'Data Reservasi View',
+    			'callback' => 'mdc_issue_view_data',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/issue/set',
+    			'title' => 'Set Goods Issue',
+    			'callback' => 'mdc_issue_set',
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/issue/close',
+    			'title' => 'Goods Issue to Closed',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_issue_close'),
+    			'weight'=>2,
+    			'access' => user_access('mdc super admin') || user_access('mdc good issue'),
+    			'type' => MENU_LOCAL_TASK
+    	);
+		$items[] = array(
+				'path' => 'mdc/online/stock',
+				'title' => 'Own Stock',
+				'callback' => 'mdc_stock_tujuan',
+    			'weight'=>5,
+				'access' => user_access('mdc good issue') || user_access('mdc super admin'),
+				'type' => MENU_LOCAL_TASK
+		);
+    	// REPORT
+    	$items[] = array(
+				'path' => 'mdc/online/report',
+				'title' => 'Report',
+				'callback' => 'mdc_report',
+    			'weight'=>6,
+				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+				'type' => MENU_LOCAL_TASK
+		);
+    	$items[] = array(
+			'path' => 'mdc/online/report/liststock',
+			'title' => 'List Stock',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_report_liststock'),
+			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+			'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    		'path' => 'mdc/online/report/liststock/excel',
+    		'title' => 'View All List Stock',
+    		'callback' => 'mdc_report_liststock_excel',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/report/liststock/view',
+    		'title' => 'View All List Stock',
+    		'callback' => 'mdc_report_liststock_view',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+			'path' => 'mdc/online/report/reservation',
+			'title' => 'Reservation Report',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_report_reservation'),
+			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+			'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    		'path' => 'mdc/online/report/reservation/view',
+    		'title' => 'View All List Stock',
+    		'callback' => 'mdc_report_reservation_view',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/report/logs',
+				'title' => 'Report Logs',
+				'callback' => 'mdc_report_logs_view',
+    			'weight'=>6,
+				'access' => user_access('mdc super admin'),
+				'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    			'path' => 'mdc/online/report/form',
+    			'title' => 'Reservation Report',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_report_form'),
+    			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/report/bulanan',
+    		'title' => 'Report Bulan',
+    		'callback' => 'mdc_report_bulan',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/report/bulanan/toexcel',
+    		'title' => 'Report Bulan',
+    		'callback' => 'mdc_report_bulan_toexcel',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    		'type' => MENU_CALLBACK
+    	);
+		
+		$items[] = array(
+    			'path' => 'mdc/online/report/stockcard',
+    			'title' => 'Stock Card',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_report_stockcard'),
+    			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    			'type' => MENU_CALLBACK
+    	);
+		
+		$items[] = array(
+    			'path' => 'mdc/online/report/historicalcard',
+    			'title' => 'Historical Card',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_report_historicalcard'),
+    			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    			'type' => MENU_CALLBACK
+    	);
+		
+		$items[] = array(
+    			'path' => 'mdc/online/report/warninglog',
+    			'title' => 'Warning Logs',
+    			'callback' => 'mdc_report_warninglog',
+    			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+    			'type' => MENU_CALLBACK
+    	);
+    	// END Set Penanggung Jawab
+    	
+    	// ADMIN =====================================================================================================
+    	$items[] = array(
+    			'path' => 'mdc/online/master',
+    			'title' => 'Master',
+    			'callback' => 'mdc_master',
+    			'weight'=>6,
+    			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    			'type' => MENU_LOCAL_TASK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/master/listall',
+    			'title' => 'List All View Reservation',
+    			'callback' => 'mdc_listall_view',
+    			'weight'=>88,
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	// GR
+    	$items[] = array(
+    			'path' => 'mdc/online/master/upload/gr',
+    			'title' => 'GR Upload',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_upload_gr'),
+    			'weight'=>4,
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/master/upload/user',
+    			'title' => 'User Upload',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_up_user'),
+    			'weight'=>77,
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);    	
+    	$items[] = array(
+    			'path' => 'mdc/online/master/get/gr',
+    			'title' => 'GET Data GR',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_get_gr'),
+    			'weight'=>5,
+    			'access' => user_access('mdc super admin') || user_access('mdc good receive'),
+    			'type' => MENU_CALLBACK
+    	);  
+    	$items[] = array(
+    			'path' => 'mdc/online/master/get/gr/cek',
+    			'title' => 'CEK Material GR',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_get_gr_cek'),
+    			'weight'=>6,
+    			'access' => user_access('mdc super admin') || user_access('mdc good receive'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/master/data/gr',
+    			'title' => 'List All Get Data GR',
+    			'callback' => 'mdc_master_data_gr',
+    			'weight'=>99,
+    			'access' => user_access('mdc super admin') || user_access('mdc good receive'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/master/data/gr/cek',
+    			'title' => 'List Cek Material GR',
+    			'callback' => 'mdc_cek_material_gr',
+    			'weight'=>99,
+    			'access' => user_access('mdc super admin') || user_access('mdc good receive'),
+    			'type' => MENU_CALLBACK
+    	);
+    	// END GR
+    	// CATEGORY
+    	$items[] = array(
+    			'path' => 'mdc/online/category/view',
+    			'title' => 'View All Category',
+    			'callback' => 'mdc_category_view',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/category/delete',
+    			'title' => 'Delete Category',
+    			'callback' => 'mdc_category_delete',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/category/set',
+				'title' => 'Set Kategori',
+				'callback' => 'drupal_get_form',
+				'callback arguments' => array('mdc_category_set'),
+				'access' => user_access('mdc super admin'),
+				'type' => MENU_CALLBACK
+		);
+    	// FUNGSI
+    	$items[] = array(
+    			'path' => 'mdc/online/fungsi/view',
+    			'title' => 'View All Fungsi',
+    			'callback' => 'mdc_fungsi_view',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/fungsi/delete',
+    			'title' => 'Delete Fungsi',
+    			'callback' => 'mdc_fungsi_delete',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/fungsi/set',
+				'title' => 'Set Fungsi',
+				'callback' => 'drupal_get_form',
+				'callback arguments' => array('mdc_fungsi_set'),
+				'access' => user_access('mdc super admin'),
+				'type' => MENU_CALLBACK
+		);
+    	// MATERIAL
+    	$items[] = array(
+    			'path' => 'mdc/online/material/view',
+    			'title' => 'View All Material',
+    			'callback' => 'mdc_material_view',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/material/delete',
+    			'title' => 'Delete Material',
+    			'callback' => 'mdc_material_delete',
+    			'access' => user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+				'path' => 'mdc/online/material/set',
+				'title' => 'Set Material',
+				'callback' => 'drupal_get_form',
+				'callback arguments' => array('mdc_material_set'),
+				'access' => user_access('mdc super admin'),
+				'type' => MENU_CALLBACK
+		);
+    	// PLANT
+    	$items[] = array(
+    		'path' => 'mdc/online/plant/view',
+    		'title' => 'View All Plant',
+    		'callback' => 'mdc_plant_view',
+    		'access' => user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/plant/delete',
+    		'title' => 'Delete Plant',
+    		'callback' => 'mdc_plant_delete',
+    		'access' => user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+			'path' => 'mdc/online/plant/set',
+			'title' => 'Set Plant',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_plant_set'),
+			'access' => user_access('mdc super admin'),
+			'type' => MENU_CALLBACK
+		);
+		$items[] = array(
+				'path' => 'mdc/autocomplete/listmaterial',
+				'callback' => '_listmaterial_autocomplete',
+				'access' => user_access('mdc admin lokasi') || user_access('mdc super admin') || user_access('mdc good issue') || user_access('mdc good receive') || user_access('mdc viewer'),
+				'type' => MENU_CALLBACK
+		);
+    	
+    	
+    	// WAREHOUSE
+    	$items[] = array(
+    		'path' => 'mdc/online/warehouse/view',
+    		'title' => 'View All Warehouse',
+    		'callback' => 'mdc_warehouse_view',
+    		'access' => user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/warehouse/delete',
+    		'title' => 'Delete Warehouse',
+    		'callback' => 'mdc_warehouse_delete',
+    		'access' => user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+			'path' => 'mdc/online/warehouse/set',
+			'title' => 'Set Warehouse',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_warehouse_set'),
+			'access' => user_access('mdc super admin'),
+			'type' => MENU_CALLBACK
+		);
+    	// STOCK
+    	$items[] = array(
+    		'path' => 'mdc/online/stock/view',
+    		'title' => 'View All Stock',
+    		'callback' => 'mdc_stock_view',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/stock/delete',
+    		'title' => 'Delete Stock',
+    		'callback' => 'mdc_stock_delete',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/stock/approve',
+    		'title' => 'Approve Transfer Stock',
+    		'callback' => 'mdc_stock_transfer_approve',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/stock/reject',
+    		'title' => 'Reject Transfer Stock',
+    		'callback' => 'mdc_stock_transfer_reject',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+			'path' => 'mdc/online/stock/set',
+			'title' => 'Set Stock',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_stock_set'),
+			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+			'type' => MENU_CALLBACK
+		);
+    	$items[] = array(
+    		'path' => 'mdc/online/stok/toexcel',
+    		'title' => 'Stock Kritis toExcel',
+    		'callback' => 'mdc_stock_toexcel',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/stok/tujuan',
+    		'title' => 'Stock Tujuan',
+    		'callback' => 'mdc_stock_tujuan',
+    		'access' => user_access('issuer') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    			'path' => 'mdc/online/stok/tujuan/detil',
+    			'title' => 'Set Stock Tujuan',
+    			'callback' => 'drupal_get_form',
+    			'callback arguments' => array('mdc_stock_tujuan_detil'),
+    			'access' => user_access('issuer') || user_access('mdc super admin'),
+    			'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/liststock/view',
+    		'title' => 'List Stock Gudang',
+    		'callback' => 'mdc_liststock_view',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/liststock/toexcel',
+    		'title' => 'List Stock Gudang',
+    		'callback' => 'mdc_liststock_toexcel',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	// USER
+    	$items[] = array(
+    		'path' => 'mdc/online/user/view',
+    		'title' => 'View All User mdc',
+    		'callback' => 'mdc_user_view',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+    		'path' => 'mdc/online/user/delete',
+    		'title' => 'Delete User mdc',
+    		'callback' => 'mdc_user_delete',
+    		'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+    		'type' => MENU_CALLBACK
+    	);
+    	$items[] = array(
+			'path' => 'mdc/online/user/set',
+			'title' => 'Add User mdc',
+			'callback' => 'drupal_get_form',
+			'callback arguments' => array('mdc_user_set'),
+			'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+			'type' => MENU_CALLBACK
+		);
+		$items[] = array(   
+		    'path' => 'mdc/online/user/name',   
+		    'title' => 'Autofill Username',
+		    'callback' => 'mdc_user_name',   
+		    'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+		    'type' => MENU_CALLBACK, 
+	    );
+		$items[] = array(   
+		    'path' => 'mdc/online/material/name',   
+		    'title' => 'Autofill Material',
+		    'callback' => 'mdc_material_name',   
+		    'access' => user_access('mdc admin lokasi') || user_access('mdc super admin'),
+		    'type' => MENU_CALLBACK, 
+	    );
+		// END ADMIN =====================================================================================================
+	}
+  return $items;
+}
+
+// Main ==========================================================================================
+$data = array(
+		'reservation',
+		'transfer',
+		'issue','retur',
+		'gr','up_user',
+		'category',
+		'material',
+		'plant',
+		'warehouse',
+		'fungsi',
+		'stock',
+		'stock_tujuan',
+		'liststock',
+		'user',
+		'report',		
+		'report_bln',		
+		'listAll'		
+); // 'spj',
+foreach ($data as $key => $name){
+	include_once 'controller/' .$name. '.php';
+}
+// End Main ======================================================================================
+
+function cek_user_mdc(){
+	$nama 	= $GLOBALS['user']->name;	
+	$nopek 	= get_nopek_org($nama);
+	return $hasil;
+}
+
+function mdc_home() {
+	$usr	= mdc_user_roles();
+	$sa		= $usr['sa'];
+	$admin	= $usr['admin'];
+	$issuer	= $usr['issuer'];
+	$receive= $usr['gudang'];
+	$viewer	= $usr['mgrApp'];
+	
+	if($admin || $sa){
+		$link1 = "<a href='" .base_path(). "files/portal/mdc/admin.pdf' target='_blank'>MDC Online User Guide for Admin Lokasi<img src='" .base_path(). "sites/all/themes/portal2009/images/icon_pdf.png'></a><br>";
+	}
+	if($issuer || $sa){
+		$link2 = "<a href='" .base_path(). "files/portal/mdc/gissue.pdf' target='_blank'>MDC Online User Guide for Goods Issue<img src='" .base_path(). "sites/all/themes/portal2009/images/icon_pdf.png'></a><br>";
+	}
+	if($receive || $sa){
+		$link3 = "<a href='" .base_path(). "files/portal/mdc/greceive.pdf' target='_blank'>MDC Online User Guide for Goods Receive<img src='" .base_path(). "sites/all/themes/portal2009/images/icon_pdf.png'></a><br>";
+	}
+	if($viewer || $sa){
+		$link4 = "<a href='" .base_path(). "files/portal/mdc/viewer.pdf' target='_blank'>MDC Online User Guide for Viewer<img src='" .base_path(). "sites/all/themes/portal2009/images/icon_pdf.png'></a><br>";
+	}
+	
+	$cari	="<script type='text/javascript'>
+ 			    function search_action(event) {
+ 					event = event || window.event;
+					if(event.keyCode == 13){
+						location.href='".base_path()."mdc/online/cari/'+document.getElementById('txt').value+'/'+document.getElementById('cari').value;
+					}
+ 			    }
+ 			</script>"; 
+	$cari	.= '<input type="text" name="cari" id="cari" value="' .arg(4). '" size="25" maxlength="30" onkeypress="search_action(event)" autofocus />';
+  	$cari	.= '<input type="button" value="Find" onclick="location.href=\''.base_path().'mdc/online/cari/\'+document.getElementById(\'txt\').value+\'/\'+document.getElementById(\'cari\').value" />';
+  	  	
+  	if(arg(3) == 1){
+  		$kondisi2 = "qty > 0"; // tampilkan yg TDK kosong
+  	}elseif(arg(3) == 2){
+  		$kondisi2 = "qty = 0"; // tampilkan yg kosong
+  	}else{
+  		$kondisi2 = "id > 0"; // tampilkan semua
+  	}
+  	
+  	$key_search = arg(4);
+  	if(isset($key_search)){
+  		$kondisi = "WHERE mat.materialCode LIKE '%%$key_search%%' || mat.description LIKE '%%$key_search%%' && $kondisi2";
+  	}else{
+  		$kondisi = "WHERE $kondisi2";
+  	}
+  	
+//	 kondisi yg ditampilkan 0 atau >0
+  	$js = '<script type="text/javascript">
+			    function getval(sel) {
+					window.location = "' .base_path(). 'mdc/online/" + sel.value;
+			    }
+			</script>';  	  	 
+
+  	$ling	= "<select name='txt' id='txt'>";
+  	for($lup=0;$lup<=2;$lup++){	  	
+	  	if(arg(3) == $lup){
+	  		$pil = 'selected';
+	  	}else{
+	  		$pil = '';
+	  	}
+	  	
+  		switch ($lup) {
+  			case 1:
+  				$txt = 'Tampilkan yg TDK Kosong';
+  				break;  	
+  			case 2:
+  				$txt = 'Tampilkan yg Kosong';
+  				break;  			
+  			default:
+  				$txt = 'Tampilkan Semua';
+  				break;
+  		}
+	  	
+	  	$ling .= "<option " .$pil. " value='" .$lup. "'>" .$txt. "</option>";
+  	}
+  	$ling	.= "</select><br><br>";
+  	// END kondisi yg ditampilkan 0 atau >0
+
+  	if(arg(0) == 'mdc' && $usr['nama'] == ''){
+  		drupal_set_message('Harap Login Terlebih Dahulu, klik <a href="' .base_path(). 'user/login?destination=mdc/online">dsini</a>', 'error');
+  	}else{
+  		
+  		drupal_add_js(drupal_get_path('module', 'atk') . "/js/jquery-1.8.2.min.js");
+  		drupal_add_js(drupal_get_path('module', 'atk') . "/js/jquery.fancybox.js");
+  		drupal_add_css(drupal_get_path('module', 'atk').'/css/jquery.fancybox.css');
+  		$jss = "<script type='text/javascript'>
+		$(document).ready(function() {
+			$('.fancybox-effects-d').fancybox({
+				padding: 0,
+				openEffect : 'elastic',
+				openSpeed  : 150,
+				closeEffect : 'elastic',
+				closeSpeed  : 150,
+				closeClick : true,
+				helpers : {
+				overlay : null
+				}
+			});
+		});
+		</script>";
+	
+		$judul = array(
+				array('data'=>t('No.'),),
+				array('data'=>t('Lokasi'),),
+				array('data'=>t('Warehouse'),),
+				array('data'=>t('Fungsi'),),
+				array('data'=>t('No. Material'),),
+				array('data'=>t('Description'),),
+				array('data'=>t('Image'),),
+				array('data'=>t('Quantity'),)
+		);
+		
+		db_set_active('pep');
+		$query = db_query("SELECT plant.description lokasi,wh.description warehouse,fungsi.description fungsi,mat.materialCode kimap, mat.description description, stock.qty qty,  mat.isActive isAct, stock.file_image image
+						FROM `mdc_stock` stock left join mdc_material mat on stock.idMaterial=mat.id
+						left join mdc_warehouse wh on stock.idWarehouse=wh.idWarehouse
+						left join mdc_fungsi fungsi on stock.idFungsi=fungsi.idFungsi
+						left join mdc_plant plant on wh.idPlant=plant.idPlant $kondisi ORDER BY lokasi,qty ASC");
+		
+		while($value = db_fetch_array($query)){
+			if($value['image']){
+				$view = "<a class='fancybox-effects-d' href='" .base_path(). "files/portal/mdc/image/" .$value['image']. "' title='" .$value['description']. "'>view</a>";
+			}else{
+				$view = "no image";
+			}
+			
+			$isi[] 	= array(++$xyz, $value['lokasi'], $value['warehouse'], $value['fungsi'], $value['kimap'], $value['description'], $view, $value['qty']);
+		}
+		db_set_active();
+		
+		$output	= theme_table($judul, $isi);
+		
+	}
+	return $link1.$link2.$link3.$link4.$ling.$cari.$output.$jss; // .$js
+}
+
+function mdc_status_pil($nil) {
+	switch($nil){
+		case 0:
+			$hasil = "All";
+			break;
+		case 1:
+			$hasil = "Waiting for Manager approval";
+			break;
+		case 2:
+			$hasil = "Approved by Manager, waiting for SCM Approval";
+			break;
+		case 3:
+			$hasil = "Approved by SCM, ready for Goods Issue";
+			break;
+		case 4:
+			$hasil = "Good Issued";
+			break;
+		case 5:
+			$hasil = "Rejected by Manager";
+			break;
+		case 6:
+			$hasil = "Rejected by SCM";
+			break;
+		case 7:
+			$hasil = "Closed";
+			break;
+		case 8:
+			$hasil = "Approved by SCM, waiting for Return to Stock";
+			break;
+		case 9:
+			$hasil = "Returned To Stock / Closed";
+			break;
+	}
+	return $hasil;
+}
+
+function mdc_master() {
+	$rolesAdmin	= $GLOBALS['user']->roles[182];
+	$xxx		= $GLOBALS['user']->name;
+	if($rolesAdmin){
+		$hasil = "<a href='" .base_path(). "mdc/online/master/upload/gr'><li>Upload Initial Stock</li></a>";
+		$hasil .= "<a href='" .base_path(). "mdc/online/master/get/gr'><li>GET Data GR</li></a>";
+		$hasil .= "<a href='" .base_path(). "mdc/online/material/view'><li>Material</li></a>";
+		$hasil .= "<a href='" .base_path(). "mdc/online/plant/view'><li>Plant</li></a>";
+		$hasil .= "<a href='" .base_path(). "mdc/online/warehouse/view'><li>Warehouse</li></a>";
+		$hasil .= "<a href='" .base_path(). "mdc/online/fungsi/view'><li>Fungsi</li></a>";
+	}
+	$hasil .= "<a href='" .base_path(). "mdc/online/stock/view'><li>Stock</li></a>";
+	$hasil .= "<a href='" .base_path(). "mdc/online/user/view'><li>User Mapping</li></a>";
+	if($xxx == 'pep-webdev01.mdgti'){
+		$hasil .= "<a href='" .base_path(). "mdc/online/master/upload/user'><li>Add User Upload</li></a>";
+	}
+	return $hasil;
+}
+
+function mdc_receive_menu(){
+	$hasil = "<a href='" .base_path(). "mdc/online/master/get/gr/cek'><li>Cek Material GR</li></a>";
+	$hasil .= "<a href='" .base_path(). "mdc/online/master/get/gr'><li>GR 105</li></a>";
+	return $hasil;
+}
+
+function mdc_issue_menu(){
+	$hasil = "<a href='" .base_path(). "mdc/online/reservation/new'><li>Consumption</li></a>";
+	$hasil .= "<a href='" .base_path(). "mdc/online/transfer'><li>Transfer</li></a>";
+	return $hasil;
+}
+
+function mdc_report() {
+	$rolesAdmin	= $GLOBALS['user']->roles[182];
+	$keuangan	= $GLOBALS['user']->roles[181]; // mdc keuangan
+	$hasil .= "<a href='" .base_path(). "mdc/online/report/historicalcard'><li>Historical Card</li></a>";
+	$hasil .= "<a href='" .base_path(). "mdc/online/report/stockcard'><li>Stock Card</li></a>";
+	//$hasil .= "<a href='" .base_path(). "mdc/online/report/form'><li>Reservation Report</li></a>";
+	//$hasil .= "<a href='" .base_path(). "mdc/online/master/listall'><li>Reservation Status</li></a>";
+	$hasil .= "<a href='" .base_path(). "mdc/online/report/warninglog'><li>Warning Logs</li></a>";
+	if($rolesAdmin){
+		$hasil .= "<a href='" .base_path(). "mdc/online/report/logs'><li>History Logs</li></a>";
+	}
+	if($keuangan){
+		$hasil .= "<a href='" .base_path(). "mdc/online/report'><li>TES Menu Keuangan</li></a>";
+	}
+	return $hasil;
+}	
+function cek_nopek_mdc($nopek) {
+	db_set_active('pep');
+	$db_data = db_query("SELECT NoPek,UserName,KodeJabatan,PA,PSA FROM sap_personal WHERE NoPek = $nopek");
+	while($row = db_fetch_array($db_data)) {
+		$hasil['nopek'] 	= $nopek;
+		$hasil['nama'] 		= $row['UserName'];
+		$hasil['jabatan'] 	= cek_jabatan_mdc($row['KodeJabatan']);
+		$hasil['fungsi'] 	= cek_fungsi_mdc($row['PA']);
+	};
+	db_set_active();
+	return $hasil;
+}
+function cek_jabatan_mdc($nojab) {
+	db_set_active('pep');
+	$db_data = db_query("SELECT Kode,Nama FROM sap_jabatan WHERE Kode = $nojab");
+	while($row = db_fetch_array($db_data)) {
+		$hasil 	= $row['Nama'];
+	};
+	db_set_active();
+	return $hasil;
+}
+function cek_fungsi_mdc($nofung) {
+	db_set_active('pep');
+	$db_data = db_query("SELECT PERS_AREA,PERS_AREA_TEXT FROM sap_personal_area WHERE PERS_AREA = $nofung");
+	while($row = db_fetch_array($db_data)) {
+		$hasil 	= $row['PERS_AREA_TEXT'];
+	};
+	db_set_active();
+	return $hasil;
+}
+function mdc_logs($page,$ket) {
+	$timeStamp	= mktime();
+	$name		= $GLOBALS['user']->name;
+	
+	if(is_array($ket)){
+		$ketx 	= '';
+		foreach ($ket as $key => $value){
+			$ketx .=  $key .' : '. $value .'<br>';
+		}
+		$ket 	= $ketx;
+	}
+	
+	db_set_active('pep');
+	$hasil = db_query("INSERT INTO mdc_logs (timeStamp,name,page,keterangan) VALUES (%d,'%s','%s','%s')", $timeStamp,$name,$page,$ket);
+	db_set_active();
+	return $hasil;
+}
+function mdc_perm() {
+	return array('mdc admin lokasi','mdc good issue','mdc good receive','mdc viewer','mdc super admin','mdc keuangan'); // ,'mdc scm approval'
+}
+function _listmaterial_autocomplete($str){
+	$matches = array();
+	db_set_active('pep');
+	$result = db_query("SELECT id,materialCode,description FROM mdc_material WHERE materialCode LIKE '%%$str%%' OR description LIKE '%%$str%%' LIMIT 10");
+	while ($row = db_fetch_object($result)) {
+		$matches[$row->id.'-'.$row->description] = $row->materialCode.' - '.$row->description;
+	}
+	db_set_active();	
+	print drupal_to_js($matches);	
+	//return drupal_to_js($matches);
+	exit();
+}
